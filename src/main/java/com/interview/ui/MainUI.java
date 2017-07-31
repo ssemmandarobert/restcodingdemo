@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Created by robert.j.ssemmanda on 29/07/2017.
  * This class is our main UI class for vaadin
  * it will show the output for the user.
- * demo graph key 
+ * demo graph key
  */
 @SpringUI
 @Theme("valo")
