@@ -97,12 +97,12 @@ public class MainView extends VerticalLayout  implements View, BroadCaster.Broad
 
         countFromChart = new Chart(ChartType.COLUMN);
         Configuration configuration = countFromChart.getConfiguration();
-        configuration.setTitle("Currency From Count");
-        List<MessageStatics>stats = messageRepository.findCurrencyFromCount();
+        configuration.setTitle("Currency From -> To Count");
+        List<MessageStatics>stats = messageRepository.findCurrencyFromToCount();
         //set charts data
         final List<Series>listSeries = new ArrayList<>();
         stats.forEach(messageStatics -> {
-            ListSeries series = new ListSeries(messageStatics.getName());
+            ListSeries series = new ListSeries(messageStatics.getName()+" -> "+messageStatics.getSecondName());
             series.addData(messageStatics.getStat());
             listSeries.add(series);
         });
@@ -110,17 +110,17 @@ public class MainView extends VerticalLayout  implements View, BroadCaster.Broad
 
         countToChart = new Chart(ChartType.COLUMN);
         configuration = countToChart.getConfiguration();
-        configuration.setTitle("Currency To Count");
-        stats = messageRepository.findCurrencyToCount();
+        configuration.setTitle("Currency From -> To Average Rate");
+        stats = messageRepository.findCurrencyFromToSumAvgRate();
         //set charts data
         final List<Series>list2Series = new ArrayList<>();
         stats.forEach(messageStatics -> {
-            ListSeries series = new ListSeries(messageStatics.getName());
-            series.addData(messageStatics.getStat());
+            ListSeries series = new ListSeries(messageStatics.getName()+" -> "+messageStatics.getSecondName());
+            series.addData(messageStatics.getCurrencyAmounts());
             list2Series.add(series);
         });
         configuration.setSeries(list2Series);
-        panelOne.addComponentsAndExpand(countFromChart,countToChart);
+
 
         //create layout for 2nd graphs
         HorizontalLayout panelTwo = new HorizontalLayout();
@@ -151,6 +151,8 @@ public class MainView extends VerticalLayout  implements View, BroadCaster.Broad
             list4Series.add(series);
         });
         configuration.setSeries(list4Series);
+
+        panelOne.addComponentsAndExpand(countFromChart,countToChart);
         panelTwo.addComponentsAndExpand(originCountry,userId);
 
         //tell graphs to draw
@@ -182,8 +184,8 @@ public class MainView extends VerticalLayout  implements View, BroadCaster.Broad
             @Override
             public void run() {
                 grid.getDataProvider().refreshAll();
-                updateConfiguration(countFromChart.getConfiguration(),messageRepository.findCurrencyFromCount());
-                updateConfiguration(countToChart.getConfiguration(),messageRepository.findCurrencyToCount());
+                updateConfiguration(countFromChart.getConfiguration(),messageRepository.findCurrencyFromToCount());
+                updateConfiguration(countToChart.getConfiguration(),messageRepository.findCurrencyFromToSumAvgRate());
                 updateConfiguration(originCountry.getConfiguration(),messageRepository.findCountryCount());
                 updateConfiguration(userId.getConfiguration(),messageRepository.findUserIdTransCount());
                 countFromChart.drawChart();
@@ -207,8 +209,17 @@ public class MainView extends VerticalLayout  implements View, BroadCaster.Broad
        //data for the graphs
         List<Series>listSeries = new ArrayList<>();
         messageStatics.forEach(messageStatics1 -> {
-            ListSeries series = new ListSeries(messageStatics1.getName());
-            series.addData(messageStatics1.getStat());
+            String serieName = messageStatics1.getName();
+            //check for second grouping
+            String secondName = messageStatics1.getSecondName();
+            serieName = !(secondName == null || secondName.trim().isEmpty())?serieName.concat(" -> "+ secondName):serieName;
+
+            ListSeries series = new ListSeries(serieName);
+            //check which of the two was populate i.e currencyamounts or stats
+            //currency amounts is for double amounts while stats is for integer amounts
+            series.addData(messageStatics1.getStat() == null?
+                    messageStatics1.getCurrencyAmounts(): messageStatics1.getStat());
+            //add to series
             listSeries.add(series);
         });
         configuration.setSeries(listSeries);

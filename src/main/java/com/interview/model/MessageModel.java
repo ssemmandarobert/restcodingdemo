@@ -36,7 +36,8 @@ public class MessageModel {
     /*
     * Constructors
     * */
-    //required by JPA
+
+    //default required by required by JPA
     public MessageModel(){
 
     }

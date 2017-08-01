@@ -33,4 +33,11 @@ public interface MessageRepository extends PagingAndSortingRepository<MessageMod
     @Query(value = "select new com.interview.model.MessageStatics(v.userId, count(v)) from MessageModel v group by v.userId")
     public List<MessageStatics> findUserIdTransCount();
 
+    @Query(value = "select new com.interview.model.MessageStatics(v.currencyFrom, v.currencyTo, count(v)) from MessageModel v group by v.currencyFrom, v.currencyTo")
+    public List<MessageStatics> findCurrencyFromToCount();
+
+    @Query(value = "select new com.interview.model.MessageStatics(v.currencyFrom, v.currencyTo, avg(v.rate)) from MessageModel v group by v.currencyFrom, v.currencyTo")
+    public List<MessageStatics> findCurrencyFromToSumAvgRate();
+
+
 }
